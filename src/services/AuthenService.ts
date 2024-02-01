@@ -13,7 +13,7 @@ import { CodeRes } from 'src/models/CodeRes';
 import { NewPasswordReq } from 'src/models/NewPasswordReq';
 import { LocationRes } from 'src/models/LocationRes';
 import { BaseResponse } from './BaseResponse';
-var nodemailler = require('nodemailer');
+import nodemailler from 'nodemailer';
 
 const option = {
   service: 'gmail',
@@ -21,9 +21,9 @@ const option = {
     user: process.env.EMAIL,
     pass: process.env.EMAIL_PASSWORD
   }
-}
+};
 
-var transporter = nodemailler.createTransport(option);
+const transporter = nodemailler.createTransport(option);
 
 @Service()
 export class AuthenService extends BaseService<User, UserRepository> {
@@ -40,7 +40,7 @@ export class AuthenService extends BaseService<User, UserRepository> {
       throw new AppException('login_failed', 'usr or pwd empty');
     }
 
-    var user: User;
+    let user: User;
     try {
       console.log('getByUsername');
       user = await this.repository.getByUsername(authenReq.usr);
@@ -50,7 +50,7 @@ export class AuthenService extends BaseService<User, UserRepository> {
       }
       if (user == null) {
         console.log('getByPhone');
-        user = await this.repository.getByPhone(authenReq.usr.replace(" ", ""));
+        user = await this.repository.getByPhone(authenReq.usr.replace(' ', ''));
       }
     } catch (error) {
       console.log(error);
@@ -76,7 +76,7 @@ export class AuthenService extends BaseService<User, UserRepository> {
       const location: LocationRes = {
         address: user.location.address,
         log: parseFloat(user.location.log?.toString() || null),
-        lat: parseFloat(user.location.lat?.toString() || null),
+        lat: parseFloat(user.location.lat?.toString() || null)
       };
 
       const userResData: UserRes = {
@@ -90,7 +90,7 @@ export class AuthenService extends BaseService<User, UserRepository> {
         role: user.role,
         location: location,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        updatedAt: user.updatedAt
       };
 
       const authenRes: AuthenRes = {
@@ -121,39 +121,38 @@ export class AuthenService extends BaseService<User, UserRepository> {
     console.log('user');
     console.log(user);
 
-    var codeRan = Math.floor(1000 + Math.random() * 9000);
+    const codeRan = Math.floor(1000 + Math.random() * 9000);
     user.code = codeRan.toString();
     await user.save();
 
     try {
-
       transporter.verify(function (err: any, success: any) {
         if (err) {
           console.log(err);
         } else {
           console.log('Connected successfully');
-          var mail = {
+          const mail = {
             from: process.env.EMAIL,
             to: user.email.toString(),
             subject: 'Verify your SOSDriver ID email address',
-            text: teamplateVerfification(user.lastName, user.code),
+            text: teamplateVerfification(user.lastName, user.code)
           };
 
           transporter.sendMail(mail, function (err: any, info: any) {
             if (err) {
               console.log(err);
             } else {
-              console.log("Mail sent: " + info.response);
+              console.log('Mail sent: ' + info.response);
             }
           });
         }
       });
-    } catch (e) { }
+    } catch (e) {}
 
     if (user) {
       const code: CodeRes = {
         code: user.code
-      }
+      };
 
       return code;
     } else {
@@ -186,8 +185,8 @@ export class AuthenService extends BaseService<User, UserRepository> {
       });
 
       const code: CodeRes = {
-        code: "0000"
-      }
+        code: '0000'
+      };
       return code;
     } else {
       throw new AppException('The User doest not exist', !user ? 'user doest not exist' : 'wrong password');
@@ -195,19 +194,14 @@ export class AuthenService extends BaseService<User, UserRepository> {
   }
 }
 
-
 export default function teamplateVerfification(fullName: string, code: string): string {
-  return ` Hi  ${fullName} \n\t`
-
-    + `\n Your verification code is  ${code} \n\t`
-
-    + '\n Enter this code in our [SOS DRIVER] to activate your account.\n\t '
-
-    + '\n Click here [open code in app] to open the [app/portal landing page].\n\t '
-
-    + '\n If you have any questions, send us an email [serveruits@gmail.com to your support team].\n\t '
-
-    + '\n We’re glad you’re here! \n\t '
-    + '\n The [SOS DRIVER] team \n\t ';
+  return (
+    ` Hi  ${fullName} \n\t` +
+    `\n Your verification code is  ${code} \n\t` +
+    '\n Enter this code in our [SOS DRIVER] to activate your account.\n\t ' +
+    '\n Click here [open code in app] to open the [app/portal landing page].\n\t ' +
+    '\n If you have any questions, send us an email [serveruits@gmail.com to your support team].\n\t ' +
+    '\n We’re glad you’re here! \n\t ' +
+    '\n The [SOS DRIVER] team \n\t '
+  );
 }
-

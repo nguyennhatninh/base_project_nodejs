@@ -8,17 +8,16 @@ import { Roles } from '../consts/Roles';
 import { Service } from 'typedi';
 import Log from '../utils/Log';
 import { BaseResponse } from '../services/BaseResponse';
-var FCM = require('fcm-node');
-var serverKey = 'YOURSERVERKEYHERE'; //put your server key here
-var fcm = new FCM(serverKey);
+const FCM = require('fcm-node');
+const serverKey = 'YOURSERVERKEYHERE'; //put your server key here
+const fcm = new FCM(serverKey);
 
 @Service()
 @Controller('api/notification')
 export class NotificationController {
-
   private dataResponse: BaseResponse = new BaseResponse();
   private className = 'CommentController';
-  constructor(private readonly notifcationService: NotificationService) { }
+  constructor(private readonly notifcationService: NotificationService) {}
 
   @Get('list')
   @Middleware([checkJwt])
@@ -41,7 +40,7 @@ export class NotificationController {
 
   @Post('push')
   @Middleware([])
-  private async pushNotification(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  private async pushNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'pushNotification', `RQ`, { req: req });
 
     try {
@@ -51,11 +50,12 @@ export class NotificationController {
       const noti: Notification = await this.notifcationService.store(notif).catch((e) => {
         throw e;
       });
-      
+
       const topicName = 'push_message';
       const deviceTokens: string[] = [];
-      deviceTokens.push()
-      var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+      deviceTokens.push();
+      const message = {
+        //this may consty according to the message type (single recipient, multicast, topic, et cetera)
         to: deviceTokens,
         collapse_key: 'your_collapse_key',
 
@@ -64,7 +64,8 @@ export class NotificationController {
           body: 'Body of your push notification'
         },
 
-        data: {  //you can send only notification or only data(or include both)
+        data: {
+          //you can send only notification or only data(or include both)
           title: 'Đỗ Phú Quý',
           description: 'Phu Quy very handsome '
         }
@@ -72,9 +73,9 @@ export class NotificationController {
 
       fcm.send(message, function (err: any, response: any) {
         if (err) {
-          console.log("Something has gone wrong!");
+          console.log('Something has gone wrong!');
         } else {
-          console.log("Successfully sent with response: ", response);
+          console.log('Successfully sent with response: ', response);
         }
       });
 

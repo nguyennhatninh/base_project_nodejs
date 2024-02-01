@@ -1,7 +1,6 @@
-
 export class BaseResponse {
-    status: number;
-    data: object;
-    message: string;
-    error: number = 0;
+  status: number;
+  data: object;
+  message: string;
+  error = 0;
 }

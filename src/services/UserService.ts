@@ -22,7 +22,7 @@ export class UserService extends BaseService<User, UserRepository> {
     return this.repository.getServiceUser();
   }
 
-  getRangeServiceUser(lat: number, long: number, range: number = 1000): Promise<User[]> {
+  getRangeServiceUser(lat: number, long: number, range = 1000): Promise<User[]> {
     return this.repository.getRangeServices(lat, long, range);
   }
 

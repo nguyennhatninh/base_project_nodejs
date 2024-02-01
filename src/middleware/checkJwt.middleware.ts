@@ -7,7 +7,7 @@ import { BaseResponse } from '../services/BaseResponse';
 export const checkJwt = (req: Request, res: Response, next: NextFunction): void => {
   //Get the jwt token from the head
   let token = <string>req.headers['authorization'];
-  let dataResponse: BaseResponse = new BaseResponse();
+  const dataResponse: BaseResponse = new BaseResponse();
 
   if (token) {
     const tokenType: string = <string>process.env.TOKEN_TYPE;
@@ -26,12 +26,11 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction): void 
         role: jwtPayload.role
       };
       res.locals.jwtPayload = jwtInfo;
-
     } catch (ex) {
       // token invalid
       dataResponse.status = 401;
-      dataResponse.data = {}
-      dataResponse.error = 401
+      dataResponse.data = {};
+      dataResponse.error = 401;
       dataResponse.message = 'author_failed';
       res.status(401).json(dataResponse);
       Log.error('middleware', 'checkJwt', { jwtPayload: res.locals?.jwtPayload, req: req });
@@ -48,8 +47,8 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction): void 
     next();
   } else {
     dataResponse.status = 401;
-    dataResponse.data = {}
-    dataResponse.error = 401
+    dataResponse.data = {};
+    dataResponse.error = 401;
     dataResponse.message = 'author_failed';
     res.status(401).json(dataResponse);
     Log.error('middleware', 'checkJwt', { jwtPayload: res.locals?.jwtPayload, req: req });

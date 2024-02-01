@@ -7,3 +7,5 @@ export * from './CommentControllerr';
 export * from './ShopController';
 export * from './NewsArticlesController';
 export * from './NotificationController';
+export * from './ExUserController';
+export * from './ExClassController';

@@ -13,10 +13,9 @@ import { NewsArticleService } from '../services/NewsArticleService';
 @Service()
 @Controller('api/news_articles')
 export class NewsArticlesController {
-
   private dataResponse: BaseResponse = new BaseResponse();
   private className = 'NewsArticlesController';
-  constructor(private readonly articlesService: NewsArticleService) { }
+  constructor(private readonly articlesService: NewsArticleService) {}
 
   @Get('list_video')
   @Middleware([checkJwt, checkRole([{ role: Roles.CORPORATE }, { role: Roles.CUSTOMER }])])
@@ -37,7 +36,6 @@ export class NewsArticlesController {
     }
   }
 
-  
   @Get('list_link')
   @Middleware([checkJwt, checkRole([{ role: Roles.CORPORATE }, { role: Roles.CUSTOMER }])])
   private async listLink(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -78,15 +76,14 @@ export class NewsArticlesController {
   }
 
   @Post('add/video')
-  @Middleware([uploadMiddleware('file', 100)]) // 10 : file size 
-  private async addVideo(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  @Middleware([uploadMiddleware('file', 100)]) // 10 : file size
+  private async addVideo(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'addUser', `RQ`, { req: req });
 
     try {
-
       const news: NewsArticles = JSON.parse(req.body.jsonData) as NewsArticles;
 
-      var videoLink = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`
+      const videoLink = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`;
       news.pathVideo = videoLink.toString();
 
       console.log(videoLink);
@@ -94,7 +91,6 @@ export class NewsArticlesController {
       const newNewsArticles: NewsArticles = await this.articlesService.store(news).catch((e) => {
         throw e;
       });
-
 
       this.dataResponse.status = 200;
       this.dataResponse.data = newNewsArticles;
@@ -107,15 +103,14 @@ export class NewsArticlesController {
   }
 
   @Post('add/link')
-  @Middleware([uploadMiddleware('file', 10)]) // 10 : file size 
-  private async addLink(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  @Middleware([uploadMiddleware('file', 10)]) // 10 : file size
+  private async addLink(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'addUser', `RQ`, { req: req });
 
     try {
-
       const news: NewsArticles = JSON.parse(req.body.jsonData) as NewsArticles;
 
-      var imageFile = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`
+      const imageFile = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`;
       news.pathImage = imageFile.toString();
 
       console.log(imageFile);
@@ -123,7 +118,6 @@ export class NewsArticlesController {
       const newNewsArticles: NewsArticles = await this.articlesService.store(news).catch((e) => {
         throw e;
       });
-
 
       this.dataResponse.status = 200;
       this.dataResponse.data = newNewsArticles;
@@ -134,7 +128,6 @@ export class NewsArticlesController {
       next(e);
     }
   }
-
 
   @Put('update')
   @Middleware([checkJwt, checkRole([{ role: Roles.CORPORATE }, { role: Roles.CUSTOMER }])])

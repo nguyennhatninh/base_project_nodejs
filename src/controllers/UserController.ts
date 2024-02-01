@@ -11,7 +11,7 @@ import { uploadMiddleware } from '../middleware/upload.middleware';
 import { BaseResponse } from '../services/BaseResponse';
 import { JwtInfo } from 'src/models/JwtInfo';
 import { env } from 'process';
-var nodemailler = require('nodemailer');
+import nodemailler from 'nodemailer';
 
 const option = {
   service: 'gmail',
@@ -19,17 +19,16 @@ const option = {
     user: process.env.EMAIL,
     pass: process.env.EMAIL_PASSWORD
   }
-}
+};
 
-var transporter = nodemailler.createTransport(option);
+const transporter = nodemailler.createTransport(option);
 
 @Service()
 @Controller('api/user')
 export class UserController {
-
   private dataResponse: BaseResponse = new BaseResponse();
   private className = 'UserController';
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('list')
   @Middleware([checkJwt, checkRole([{ role: Roles.CORPORATE }])])
@@ -90,15 +89,14 @@ export class UserController {
   }
 
   @Post('register')
-  @Middleware([uploadMiddleware('file', 10)]) // 10 : file size 
-  private async addUser(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  @Middleware([uploadMiddleware('file', 10)]) // 10 : file size
+  private async addUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'addUser', `RQ`, { req: req });
 
     try {
-
       const user: User = JSON.parse(req.body.jsonData) as User;
 
-      var result: User;
+      let result: User;
       try {
         console.log('getByUsername');
         result = await this.userService.findByUserName(user.usr);
@@ -108,14 +106,13 @@ export class UserController {
         }
         if (result == null) {
           console.log('getByPhone');
-          result = await this.userService.findByPhone(user.phone.replace(" ", ""));
+          result = await this.userService.findByPhone(user.phone.replace(' ', ''));
         }
       } catch (error) {
         console.log(error);
       }
 
       if (result != null) {
-
         this.dataResponse.status = 400;
         this.dataResponse.data = {};
         if (result.usr === user.usr) {
@@ -130,12 +127,12 @@ export class UserController {
         return;
       }
 
-      var val = Math.floor(1000 + Math.random() * 9000);
+      const val = Math.floor(1000 + Math.random() * 9000);
 
-      // replace 
-      user.phone.replace(" ", "");
+      // replace
+      user.phone.replace(' ', '');
 
-      var avatar = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`
+      const avatar = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`;
       user.code = val.toString();
       user.avatar = avatar.toString();
 
@@ -153,26 +150,23 @@ export class UserController {
             console.log(err);
           } else {
             console.log('Connected successfully');
-            var mail = {
+            const mail = {
               from: process.env.EMAIL,
               to: newUser.email.toString(),
               subject: 'Verify your SOSDriver ID email address',
-              text: teamplateVerfification(newUser.lastName, newUser.code),
+              text: teamplateVerfification(newUser.lastName, newUser.code)
             };
 
             transporter.sendMail(mail, function (err: any, info: any) {
               if (err) {
                 console.log(err);
               } else {
-                console.log("Mail sent: " + info.response);
+                console.log('Mail sent: ' + info.response);
               }
             });
           }
         });
-      } catch (e) {
-
-      }
-
+      } catch (e) {}
 
       this.dataResponse.status = 200;
       this.dataResponse.data = newUser;
@@ -184,9 +178,8 @@ export class UserController {
     }
   }
 
-
   @Post('code')
-  private async checkCode(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  private async checkCode(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'addUser', `RQ`, { req: req });
 
     try {
@@ -224,7 +217,7 @@ export class UserController {
   }
 
   @Post('resend_code')
-  private async resendCode(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  private async resendCode(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'addUser', `RQ`, { req: req });
 
     try {
@@ -233,7 +226,7 @@ export class UserController {
       });
 
       if (result != null) {
-        var codeRan = Math.floor(1000 + Math.random() * 9000);
+        const codeRan = Math.floor(1000 + Math.random() * 9000);
         result.code = codeRan.toString();
         await result.save();
 
@@ -246,28 +239,27 @@ export class UserController {
                 console.log(err);
               } else {
                 console.log('Connected successfully');
-                var mail = {
+                const mail = {
                   from: process.env.EMAIL,
                   to: result.email.toString(),
                   subject: 'Verify your SOSDriver ID email address',
-                  text: teamplateVerfification(result.lastName, result.code),
+                  text: teamplateVerfification(result.lastName, result.code)
                 };
 
                 transporter.sendMail(mail, function (err: any, info: any) {
                   if (err) {
                     console.log(err);
                   } else {
-                    console.log("Mail sent: " + info.response);
+                    console.log('Mail sent: ' + info.response);
                   }
                 });
-
               }
-            })
-          } catch (e) { }
+            });
+          } catch (e) {}
         }
         this.dataResponse.data = {
-          "code": result.code
-        }
+          code: result.code
+        };
         this.dataResponse.message = 'Successfull';
 
         res.status(200).json(this.dataResponse);
@@ -318,7 +310,6 @@ export class UserController {
 
         res.status(200).json(this.dataResponse);
       }
-
     } catch (e) {
       next(e);
     }
@@ -358,13 +349,12 @@ export class UserController {
     Log.info(this.className, 'updateUser', `RQ`, { req: req });
 
     try {
-  
       const user: User = <User>req.body;
       console.log(user);
       const newUser: User = await this.userService.findById(res.locals.jwtPayload['uuid']).catch((e) => {
         throw e;
       });
-      
+
       newUser.role = user.role;
 
       await newUser.save();
@@ -398,17 +388,13 @@ export class UserController {
 }
 
 export default function teamplateVerfification(fullName: string, code: string): string {
-  return ` Hi  ${fullName} \n\t`
-
-    + `\n Your verification code is  ${code} \n\t`
-
-    + '\n Enter this code in our [SOS DRIVER] to activate your account.\n\t '
-
-    + '\n Click here [open code in app] to open the [app/portal landing page].\n\t '
-
-    + '\n If you have any questions, send us an email [serveruits@gmail.com to your support team].\n\t '
-
-    + '\n We’re glad you’re here! \n\t '
-    + '\n The [SOS DRIVER] team \n\t ';
+  return (
+    ` Hi  ${fullName} \n\t` +
+    `\n Your verification code is  ${code} \n\t` +
+    '\n Enter this code in our [SOS DRIVER] to activate your account.\n\t ' +
+    '\n Click here [open code in app] to open the [app/portal landing page].\n\t ' +
+    '\n If you have any questions, send us an email [serveruits@gmail.com to your support team].\n\t ' +
+    '\n We’re glad you’re here! \n\t ' +
+    '\n The [SOS DRIVER] team \n\t '
+  );
 }
-

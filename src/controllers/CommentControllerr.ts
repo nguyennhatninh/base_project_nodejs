@@ -16,10 +16,9 @@ import { Comment } from '../entities/Comment';
 @Service()
 @Controller('api/comment')
 export class CommentController {
-
   private dataResponse: BaseResponse = new BaseResponse();
   private className = 'CommentController';
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('list/:id')
   @Middleware([checkJwt, checkRole([{ role: Roles.CORPORATE }])])
@@ -47,9 +46,11 @@ export class CommentController {
 
     try {
       const id: string = req.params.id;
-      const item: User = await this.userService.findById(id, { relations: ['comments'], order: { updatedAt: 'DESC' } }).catch((e) => {
-        throw e;
-      });
+      const item: User = await this.userService
+        .findById(id, { relations: ['comments'], order: { updatedAt: 'DESC' } })
+        .catch((e) => {
+          throw e;
+        });
 
       this.dataResponse.status = 200;
       this.dataResponse.data = item.comments;
@@ -61,8 +62,8 @@ export class CommentController {
   }
 
   @Post('add')
-  @Middleware([checkJwt, uploadMiddleware('file', 10)]) // 10 : file size 
-  private async addComment(req: Request, res: Response, next: NextFunction,): Promise<void> {
+  @Middleware([checkJwt, uploadMiddleware('file', 10)]) // 10 : file size
+  private async addComment(req: Request, res: Response, next: NextFunction): Promise<void> {
     Log.info(this.className, 'addComment', `RQ`, { req: req });
     const jwtInfo = <JwtInfo>res.locals.jwtPayload;
     console.log(jwtInfo);
@@ -76,7 +77,7 @@ export class CommentController {
         throw e;
       });
 
-      var avatar = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`
+      const avatar = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`;
       console.log(avatar);
 
       const cm = new Comment();
@@ -113,11 +114,13 @@ export class CommentController {
       console.log(uuidShop);
       console.log(commentID);
 
-      const shop: User | undefined = await this.userService.findById(uuidShop, { relations: ['comments'] }).catch((err) => {
-        throw err;
-      });
+      const shop: User | undefined = await this.userService
+        .findById(uuidShop, { relations: ['comments'] })
+        .catch((err) => {
+          throw err;
+        });
 
-      shop.comments = shop.comments.filter(cm => {
+      shop.comments = shop.comments.filter((cm) => {
         return cm.uuid !== commentID;
       });
 
@@ -138,24 +141,22 @@ export class CommentController {
     Log.info(this.className, 'updateUser', `RQ`, { req: req });
 
     try {
-
       const comment: CommentReq = req.body;
 
       const uuidShop: number = Number.parseInt(req.params.shopId, 0);
       const commentID: number = Number.parseInt(req.params.commentId, 0);
 
+      const shop: User | undefined = await this.userService
+        .findById(uuidShop, { relations: ['comments'] })
+        .catch((err) => {
+          throw err;
+        });
 
-      const shop: User | undefined = await this.userService.findById(uuidShop, { relations: ['comments'] }).catch((err) => {
-        throw err;
-      });
-
-      const cm = shop.comments.find(x => x.uuid === commentID) as Comment;
+      const cm = shop.comments.find((x) => x.uuid === commentID) as Comment;
       cm.comment = comment.comment;
       cm.rate = comment.rate;
-      
+
       await cm.save();
-     
-  
 
       this.dataResponse.status = 200;
       this.dataResponse.data = {};

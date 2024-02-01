@@ -14,8 +14,7 @@ import { BaseResponse } from '../services/BaseResponse';
 export class UploadController {
   private className = 'UploadController';
   private dataResponse: BaseResponse = new BaseResponse();
-  constructor(private readonly userService: UserService) { }
-
+  constructor(private readonly userService: UserService) {}
 
   @Post('avatar')
   @Middleware([checkJwt, uploadMiddleware('file', 10)])
@@ -24,18 +23,17 @@ export class UploadController {
 
     try {
       const jwtInfo = <JwtInfo>res.locals.jwtPayload;
-      
+
       const user: User | undefined = await this.userService.findById(res.locals.jwtPayload['uuid']).catch((err) => {
         throw err;
       });
-      var avatar = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`;
+      const avatar = `${process.env.UPLOAD_FOLDER}/${req.file.filename}`;
       user.avatar = avatar;
       await user.save();
       this.dataResponse.status = 200;
       this.dataResponse.data = user;
       this.dataResponse.message = 'Login Successfull';
       res.status(200).json(this.dataResponse);
-      
     } catch (e) {
       next(e);
     }

@@ -13,7 +13,20 @@
   ], 
   "rules": { 
     "no-useless-escape": "off",
-    "prettier/prettier": 2,
+    "prettier/prettier":[
+      "warn",
+      {
+        "arrowParens": "always",
+        "semi": true,
+        "trailingComma": "none",
+        "tabWidth": 2,
+        "endOfLine": "auto",
+        "useTabs": false,
+        "singleQuote": true,
+        "printWidth": 120,
+        "jsxSingleQuote": true
+      }
+    ],
     "@typescript-eslint/no-empty-function": [
       "error", { 
         "allow": ["arrowFunctions", "constructors"] 
